@@ -12,6 +12,7 @@ const NAV_ITEMS = [
     { name: 'ALLOCATION', path: '/dashboard/allocation', icon: Layers },
     { name: 'AI OPTIMIZER', path: '/dashboard/ai-optimizer', icon: BrainCircuit },
     { name: 'SENTINEL', path: '/dashboard/sentinel', icon: ShieldCheck },
+    { name: 'VIRTUAL MEM', path: '/dashboard/virtual', icon: Cpu, disabled: true },
 ];
 
 export default function Sidebar() {
@@ -42,9 +43,10 @@ export default function Sidebar() {
                     return (
                         <Link
                             key={item.path}
-                            href={item.path}
+                            href={item.disabled ? '#' : item.path}
                             className={clsx(
-                                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-mono transition-all group relative overflow-hidden hover:bg-cyan-900/20",
+                                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-mono transition-all group relative overflow-hidden",
+                                item.disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-cyan-900/20",
                                 isActive ? "text-cyan-400 bg-cyan-900/30 border border-cyan-500/50" : "text-gray-400 border border-transparent"
                             )}
                         >
