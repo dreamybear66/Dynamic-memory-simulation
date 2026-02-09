@@ -2,16 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Cpu, MemoryStick, Activity, Layers, BrainCircuit, ShieldCheck } from 'lucide-react';
+import { MemoryStick, Layers, BookOpen } from 'lucide-react';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 
 const NAV_ITEMS = [
-    { name: 'SCHEDULER', path: '/dashboard/scheduler', icon: LayoutDashboard },
     { name: 'PAGING SIM', path: '/dashboard/memory', icon: MemoryStick },
     { name: 'ALLOCATION', path: '/dashboard/allocation', icon: Layers },
-    { name: 'AI OPTIMIZER', path: '/dashboard/ai-optimizer', icon: BrainCircuit },
-    { name: 'SENTINEL', path: '/dashboard/sentinel', icon: ShieldCheck },
+    { name: 'DOCS', path: '/dashboard/docs', icon: BookOpen },
 ];
 
 export default function Sidebar() {
