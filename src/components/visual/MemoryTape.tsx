@@ -41,17 +41,20 @@ function BlockVisual({ block, total }: { block: MemoryBlock, total: number }) {
             className={clsx(
                 "h-full flex flex-col items-center justify-center relative group isolate border-r border-black/50 overflow-hidden transition-colors",
                 isHole
-                    ? "bg-gray-800/20 text-gray-600 pattern-diagonal-lines"
+                    ? "text-gray-400"
                     : "bg-opacity-80 backdrop-blur-sm"
             )}
             style={{
                 width: `${widthPercent}%`,
-                backgroundColor: !isHole ? block.color || '#3b82f6' : undefined,
-                boxShadow: !isHole ? `inset 0 0 10px rgba(0,0,0,0.5)` : 'none'
+                backgroundColor: !isHole ? block.color || '#3b82f6' : '#1f2937',
+                boxShadow: !isHole ? `inset 0 0 10px rgba(0,0,0,0.5)` : 'inset 0 0 20px rgba(0,0,0,0.8)',
+                backgroundImage: isHole
+                    ? 'repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(55, 65, 81, 0.5) 5px, rgba(55, 65, 81, 0.5) 10px)'
+                    : 'none'
             }}
         >
-            {/* Label (Hide if too small) */}
-            {widthPercent > 5 && (
+            {/* Label (Show if width > 3%) */}
+            {widthPercent > 3 && (
                 <div className="text-[10px] font-mono font-bold text-center z-10 mix-blend-difference text-white/80 pointer-events-none whitespace-nowrap overflow-hidden text-ellipsis px-1">
                     {isHole ? 'HOLE' : `P${block.pid}`}
                     <div className="text-[9px] opacity-70">{block.size}KB</div>

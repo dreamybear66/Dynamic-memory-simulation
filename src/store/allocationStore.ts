@@ -45,6 +45,7 @@ export interface AllocationState {
     deallocate: (pid: number | string) => void;
     compact: () => void;
     reset: () => void;
+    resetStatsToCurrentState: () => void;
 
     // Analysis
     compareAlgorithms: (size: number) => ComparisonResult[];
@@ -87,22 +88,31 @@ const calcStats = (blocks: MemoryBlock[], timestamp: number): StatsPoint => {
 };
 
 export const useAllocationStore = create<AllocationState>((set, get) => ({
-    totalMemory: 1000, // Fixed total size for simulation
+    totalMemory: 10000, // Fixed total size for simulation (10MB)
     algorithm: 'FIRST_FIT',
 
-    memoryBlocks: [{ id: 'init-hole', start: 0, size: 1000, type: 'HOLE' }],
+    memoryBlocks: [{ id: 'init-hole', start: 0, size: 10000, type: 'HOLE' }],
     lastAllocatedIndex: 0,
     logs: ["Allocation System Initialized."],
-    statsHistory: [{ timestamp: 0, externalFragmentation: 1000, largestHole: 1000, processCount: 0 }],
+    statsHistory: [{ timestamp: 0, externalFragmentation: 10000, largestHole: 10000, processCount: 0 }],
 
     setAlgorithm: (algo) => set({ algorithm: algo, logs: [...get().logs, `Algorithm switched to ${algo}`] }),
 
     reset: () => set({
-        memoryBlocks: [{ id: 'init-hole', start: 0, size: 1000, type: 'HOLE' }],
+        memoryBlocks: [{ id: 'init-hole', start: 0, size: 10000, type: 'HOLE' }],
         lastAllocatedIndex: 0,
         logs: ["Memory Reset."],
-        statsHistory: [{ timestamp: 0, externalFragmentation: 1000, largestHole: 1000, processCount: 0 }]
+        statsHistory: [{ timestamp: 0, externalFragmentation: 10000, largestHole: 10000, processCount: 0 }]
     }),
+
+    // Reset stats history to current state (used after sample allocation)
+    resetStatsToCurrentState: () => {
+        const { memoryBlocks } = get();
+        const stats = calcStats(memoryBlocks, 1);
+        set({
+            statsHistory: [stats]
+        });
+    },
 
     allocate: (pid, size, color) => {
         const { algorithm, memoryBlocks, lastAllocatedIndex, totalMemory, statsHistory } = get();

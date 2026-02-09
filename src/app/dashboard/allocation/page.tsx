@@ -4,6 +4,7 @@ import { useAllocationStore } from '@/store/allocationStore';
 import AllocationControls from '@/components/controls/AllocationControls';
 import MemoryTape from '@/components/visual/MemoryTape';
 import FragmentationChart from '@/components/visual/FragmentationChart';
+import StatisticsPanel from '@/components/visual/StatisticsPanel';
 import SevenSegment from '@/components/ui/SevenSegment';
 import TerminalWindow from '@/components/visual/TerminalWindow';
 
@@ -15,7 +16,7 @@ export default function VariablePartitioningPage() {
     const freePercent = ((currentStats.externalFragmentation / totalMemory) * 100).toFixed(1);
 
     return (
-        <div className="min-h-full w-full p-6 flex flex-col gap-6">
+        <div className="min-h-full w-full p-6 flex flex-col gap-6 overflow-y-auto">
             {/* Header / HUD */}
             <div className="flex items-center justify-between shrink-0">
                 <div>
@@ -53,23 +54,27 @@ export default function VariablePartitioningPage() {
             <div className="grid grid-cols-12 gap-6 z-10 w-full">
 
                 {/* Left Control Panel */}
-                <div className="col-span-4">
+                <div className="col-span-4 flex flex-col gap-4">
                     <AllocationControls />
                 </div>
 
                 {/* Right Visualization Panel */}
                 <div className="col-span-8 flex flex-col gap-4">
-
-                    {/* Top: Memory Tape */}
-                    <TerminalWindow title="PHYSICAL MEMORY TAPE" className="min-h-[400px]" status="scanning">
+                    {/* Memory Tape */}
+                    <TerminalWindow title="PHYSICAL MEMORY TAPE" className="min-h-[400px]" status="scanning" hideControls>
                         <MemoryTape />
                     </TerminalWindow>
-
-                    {/* Bottom: Fragmentation Chart */}
-                    <TerminalWindow title="EXTERNAL FRAGMENTATION MONITOR" className="h-48 shrink-0" status="active">
-                        <FragmentationChart />
-                    </TerminalWindow>
                 </div>
+            </div>
+
+            {/* Statistics Panel - Full width, aligned with frag chart */}
+            <TerminalWindow title="MEMORY STATISTICS" status="active" hideControls>
+                <StatisticsPanel />
+            </TerminalWindow>
+
+            {/* Fragmentation Chart - Full width below */}
+            <div className="w-full min-h-[260px]">
+                <FragmentationChart />
             </div>
         </div>
     );

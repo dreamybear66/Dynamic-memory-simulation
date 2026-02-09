@@ -16,7 +16,8 @@ export default function AllocationControls() {
         compact,
         reset,
         memoryBlocks,
-        compareAlgorithms
+        compareAlgorithms,
+        resetStatsToCurrentState
     } = useAllocationStore();
 
     const [pid, setPid] = useState(1);
@@ -24,8 +25,17 @@ export default function AllocationControls() {
     const [deallocPid, setDeallocPid] = useState('');
     const [compareResults, setCompareResults] = useState<ComparisonResult[] | null>(null);
 
+    // Algorithm-specific colors matching the cyberpunk theme
+    const algoColors: Record<AllocationAlgo, string> = {
+        'FIRST_FIT': '#22d3ee',  // Cyan
+        'BEST_FIT': '#a855f7',   // Purple
+        'WORST_FIT': '#eab308',  // Yellow
+        'NEXT_FIT': '#10b981',   // Green
+    };
+
     const handleAllocate = () => {
-        const success = allocate(pid, size, '#3b82f6');
+        const color = algoColors[algorithm];
+        const success = allocate(pid, size, color);
         if (success) {
             setPid(c => c + 1);
             setCompareResults(null); // Clear comparison on new action
@@ -40,29 +50,42 @@ export default function AllocationControls() {
     const handleRandomAlloc = () => {
         reset();
 
-        // Create initial contiguous blocks
+        // Sample color - pink/magenta (different from algorithm colors)
+        const sampleColor = '#ec4899';
+
+        // Create alternating pattern: Process, Hole, Process, Hole...
+        // Total: 10000KB - allocate in order then delete every other one
+        // P1(1000) -> Temp5(800) -> P2(1500) -> Temp6(700) -> P3(1200) -> Temp7(900) -> P4(1400) -> remaining hole
+        // After deletion: P1(1000), Hole(800), P2(1500), Hole(700), P3(1200), Hole(900), P4(1400), Hole(2500)
         const samples = [
-            { pid: 1001, size: 100, color: '#3b82f6' }, // Blue
-            { pid: 1002, size: 60, color: '#ef4444' }, // To be deleted (Hole)
-            { pid: 1003, size: 200, color: '#10b981' }, // Green
-            { pid: 1004, size: 80, color: '#ef4444' }, // To be deleted (Hole)
-            { pid: 1005, size: 150, color: '#eab308' }, // Yellow
-            { pid: 1006, size: 120, color: '#ef4444' }, // To be deleted (Hole)
-            { pid: 1007, size: 180, color: '#8b5cf6' }, // Purple
+            { pid: 1, size: 1000 },
+            { pid: 5, size: 800 },   // Will be deleted (creates hole after P1)
+            { pid: 2, size: 1500 },
+            { pid: 6, size: 700 },   // Will be deleted (creates hole after P2)
+            { pid: 3, size: 1200 },
+            { pid: 7, size: 900 },   // Will be deleted (creates hole after P3)
+            { pid: 4, size: 1400 },
+            // Remaining 2500KB becomes a hole at the end
         ];
 
-        // Allocate all
-        samples.forEach(s => allocate(s.pid, s.size, s.color));
+        // Allocate all with same color
+        samples.forEach(s => allocate(s.pid, s.size, sampleColor));
 
-        // Create holes by removing specific PIDs
-        [1002, 1004, 1006].forEach(pid => deallocate(pid));
+        // Create holes by removing PIDs 5, 6, 7 (leaving 1, 2, 3, 4 with holes between)
+        [5, 6, 7].forEach(pid => deallocate(pid));
+
+        // Reset stats history to show only 1 step (current state after sample allocation)
+        resetStatsToCurrentState();
+
+        // Set next PID to 5 (since we have 4 active processes: 1, 2, 3, 4)
+        setPid(5);
     };
 
     const activeProcesses = memoryBlocks.filter(b => b.type === 'PROCESS');
 
     return (
         <div className="flex flex-col gap-4">
-            <TerminalWindow title="ALLOCATION_ENGINE" className="shrink-0">
+            <TerminalWindow title="ALLOCATION_ENGINE" className="shrink-0" hideControls>
                 <div className="flex flex-col gap-4">
                     {/* Algorithm Switcher */}
                     <div className="space-y-1">
@@ -182,7 +205,7 @@ export default function AllocationControls() {
             </TerminalWindow>
 
             {/* Deallocation List */}
-            <TerminalWindow title="ACTIVE BLOCK TABLE" className="min-h-[400px]" status="active">
+            <TerminalWindow title="ACTIVE BLOCK TABLE" className="flex-1" status="active" hideControls>
                 <div className="flex flex-col h-full overflow-hidden">
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
                         {activeProcesses.length === 0 ? (

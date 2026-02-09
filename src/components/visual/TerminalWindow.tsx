@@ -9,9 +9,10 @@ interface TerminalWindowProps {
     children: React.ReactNode;
     className?: string;
     status?: 'active' | 'idle' | 'error' | 'scanning';
+    hideControls?: boolean;
 }
 
-export default function TerminalWindow({ title, children, className, status = 'idle' }: TerminalWindowProps) {
+export default function TerminalWindow({ title, children, className, status = 'idle', hideControls = false }: TerminalWindowProps) {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -35,11 +36,13 @@ export default function TerminalWindow({ title, children, className, status = 'i
                     <h3 className="text-xs tracking-widest font-bold text-cyan-300 uppercase">{title}</h3>
                 </div>
 
-                <div className="flex gap-2 text-cyan-700">
-                    <Minimize2 size={14} className="cursor-pointer hover:text-cyan-400 transition-colors" />
-                    <Maximize2 size={14} className="cursor-pointer hover:text-cyan-400 transition-colors" />
-                    <X size={14} className="cursor-pointer hover:text-red-400 transition-colors" />
-                </div>
+                {!hideControls && (
+                    <div className="flex gap-2 text-cyan-700">
+                        <Minimize2 size={14} className="cursor-pointer hover:text-cyan-400 transition-colors" />
+                        <Maximize2 size={14} className="cursor-pointer hover:text-cyan-400 transition-colors" />
+                        <X size={14} className="cursor-pointer hover:text-red-400 transition-colors" />
+                    </div>
+                )}
             </div>
 
             {/* Content */}
