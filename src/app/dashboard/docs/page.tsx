@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Cpu, HardDrive, Layers, RefreshCw, ChevronRight, ChevronDown } from 'lucide-react';
 import clsx from 'clsx';
+import AllocationAlgorithmsComparison from '@/components/visual/AllocationAlgorithmsComparison';
+import FragmentationComparison from '@/components/visual/FragmentationComparison';
+import PagingWorkflowDiagram from '@/components/visual/PagingWorkflowDiagram';
 
 interface Section {
     id: string;
@@ -93,7 +96,7 @@ export default function DocumentationPage() {
 
             {/* Navigation Pills */}
             <div className="flex flex-wrap gap-2 shrink-0">
-                {['overview', 'paging', 'replacement', 'allocation', 'scheduling'].map(section => (
+                {['overview', 'replacement', 'allocation', 'c-code'].map(section => (
                     <button
                         key={section}
                         onClick={() => {
@@ -109,7 +112,7 @@ export default function DocumentationPage() {
                                 : "border-gray-700 text-gray-500 hover:border-cyan-700 hover:text-cyan-500"
                         )}
                     >
-                        {section}
+                        {section === 'c-code' ? 'C Code' : section}
                     </button>
                 ))}
             </div>
@@ -124,87 +127,130 @@ export default function DocumentationPage() {
                         isOpen={openSections.includes('overview')}
                         onToggle={() => toggleSection('overview')}
                     >
+                        <h4 className="text-cyan-400 font-bold mb-3">What is This Simulator?</h4>
                         <p>
-                            This simulator demonstrates core <Highlight>Operating System</Highlight> concepts
-                            related to memory management and process scheduling. It provides an interactive
-                            visualization of how modern operating systems handle:
+                            This is a comprehensive, interactive web-based simulator for visualizing and understanding
+                            core <Highlight>Operating System</Highlight> memory management concepts. Built with modern
+                            web technologies, it provides real-time visualization of how operating systems manage
+                            memory resources efficiently.
                         </p>
-                        <ul className="list-disc list-inside space-y-2 ml-4">
-                            <li><Highlight color="purple">Virtual Memory</Highlight> - Abstracting physical memory through paging</li>
-                            <li><Highlight color="purple">Page Replacement</Highlight> - Handling page faults efficiently</li>
-                            <li><Highlight color="purple">Dynamic Allocation</Highlight> - Variable partition memory management</li>
-                            <li><Highlight color="purple">Process Scheduling</Highlight> - CPU time distribution algorithms</li>
-                        </ul>
-                        <div className="mt-4 p-3 border border-cyan-900/50 rounded bg-cyan-900/10">
+
+                        <h4 className="text-cyan-400 font-bold mb-3 mt-6">Core Concepts Implemented</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-3 border border-purple-900/50 rounded bg-purple-900/10">
+                                <h5 className="text-purple-400 font-bold text-xs mb-2">1. VARIABLE PARTITIONING</h5>
+                                <p className="text-xs mb-2">
+                                    Dynamic memory allocation with 4 algorithms:
+                                </p>
+                                <ul className="text-xs space-y-1 ml-3">
+                                    <li>• <Highlight color="cyan">First Fit</Highlight> - Fast allocation, first suitable hole</li>
+                                    <li>• <Highlight color="purple">Best Fit</Highlight> - Minimizes wasted space</li>
+                                    <li>• <Highlight color="yellow">Worst Fit</Highlight> - Leaves larger fragments</li>
+                                    <li>• <Highlight color="green">Next Fit</Highlight> - Continues from last position</li>
+                                </ul>
+                            </div>
+
+                            <div className="p-3 border border-cyan-900/50 rounded bg-cyan-900/10">
+                                <h5 className="text-cyan-400 font-bold text-xs mb-2">2. FRAGMENTATION ANALYSIS</h5>
+                                <p className="text-xs mb-2">
+                                    Real-time tracking of memory fragmentation:
+                                </p>
+                                <ul className="text-xs space-y-1 ml-3">
+                                    <li>• <Highlight color="cyan">External</Highlight> - Free space scattered between blocks</li>
+                                    <li>• <Highlight color="purple">Internal</Highlight> - Wasted space within blocks</li>
+                                    <li>• Live fragmentation over time graph</li>
+                                    <li>• Memory compaction simulation</li>
+                                </ul>
+                            </div>
+
+                            <div className="p-3 border border-yellow-900/50 rounded bg-yellow-900/10">
+                                <h5 className="text-yellow-400 font-bold text-xs mb-2">3. PAGING SYSTEM</h5>
+                                <p className="text-xs mb-2">
+                                    Complete virtual memory implementation:
+                                </p>
+                                <ul className="text-xs space-y-1 ml-3">
+                                    <li>• Page tables with virtual-to-physical mapping</li>
+                                    <li>• <Highlight color="yellow">TLB</Highlight> (Translation Lookaside Buffer)</li>
+                                    <li>• Page fault handling and tracking</li>
+                                    <li>• Working set and thrashing detection</li>
+                                </ul>
+                            </div>
+
+                            <div className="p-3 border border-green-900/50 rounded bg-green-900/10">
+                                <h5 className="text-green-400 font-bold text-xs mb-2">4. PAGE REPLACEMENT</h5>
+                                <p className="text-xs mb-2">
+                                    4 replacement algorithms implemented:
+                                </p>
+                                <ul className="text-xs space-y-1 ml-3">
+                                    <li>• <Highlight color="cyan">FIFO</Highlight> - First-In, First-Out</li>
+                                    <li>• <Highlight color="purple">LRU</Highlight> - Least Recently Used</li>
+                                    <li>• <Highlight color="yellow">Optimal</Highlight> - Theoretical best-case</li>
+                                    <li>• <Highlight color="green">Clock</Highlight> - Second Chance algorithm</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h4 className="text-cyan-400 font-bold mb-3 mt-6">System Architecture</h4>
+                        <div className="p-4 bg-black/30 border border-cyan-900/30 rounded">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                <div>
+                                    <h6 className="text-cyan-400 font-bold mb-2">Frontend</h6>
+                                    <ul className="space-y-1 text-gray-400">
+                                        <li>• Next.js 16 (React)</li>
+                                        <li>• TypeScript</li>
+                                        <li>• Tailwind CSS v4</li>
+                                        <li>• Framer Motion</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h6 className="text-purple-400 font-bold mb-2">State Management</h6>
+                                    <ul className="space-y-1 text-gray-400">
+                                        <li>• Zustand stores</li>
+                                        <li>• Reactive updates</li>
+                                        <li>• Real-time metrics</li>
+                                        <li>• Algorithm logic</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h6 className="text-green-400 font-bold mb-2">Visualization</h6>
+                                    <ul className="space-y-1 text-gray-400">
+                                        <li>• Custom SVG charts</li>
+                                        <li>• Interactive diagrams</li>
+                                        <li>• Animated transitions</li>
+                                        <li>• Cyberpunk theme</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 className="text-cyan-400 font-bold mb-3 mt-6">Performance Metrics Tracked</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div className="p-2 bg-cyan-900/10 border border-cyan-500/30 rounded text-center">
+                                <div className="text-cyan-400 font-bold text-xs">Memory Utilization</div>
+                                <div className="text-[10px] text-gray-400 mt-1">Allocated vs Free %</div>
+                            </div>
+                            <div className="p-2 bg-purple-900/10 border border-purple-500/30 rounded text-center">
+                                <div className="text-purple-400 font-bold text-xs">Fragmentation</div>
+                                <div className="text-[10px] text-gray-400 mt-1">External & Internal</div>
+                            </div>
+                            <div className="p-2 bg-yellow-900/10 border border-yellow-500/30 rounded text-center">
+                                <div className="text-yellow-400 font-bold text-xs">Page Fault Rate</div>
+                                <div className="text-[10px] text-gray-400 mt-1">Faults per Access</div>
+                            </div>
+                            <div className="p-2 bg-green-900/10 border border-green-500/30 rounded text-center">
+                                <div className="text-green-400 font-bold text-xs">TLB Hit Ratio</div>
+                                <div className="text-[10px] text-gray-400 mt-1">Cache Efficiency</div>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 p-3 border border-cyan-900/50 rounded bg-cyan-900/10">
                             <p className="text-cyan-400 text-xs font-bold mb-2">💡 TIP</p>
                             <p className="text-xs">
                                 Use the <Highlight>PAGING SIM</Highlight> tab to experiment with virtual memory and
                                 the <Highlight>ALLOCATION</Highlight> tab to explore dynamic memory partitioning.
+                                Try different algorithms and observe their performance characteristics!
                             </p>
                         </div>
-                    </DocSection>
-                </div>
-
-                {/* Paging Section */}
-                <div id="paging">
-                    <DocSection
-                        title="📄 VIRTUAL MEMORY & PAGING"
-                        isOpen={openSections.includes('paging')}
-                        onToggle={() => toggleSection('paging')}
-                    >
-                        <h4 className="text-cyan-400 font-bold mb-2">What is Paging?</h4>
-                        <p>
-                            <Highlight>Paging</Highlight> is a memory management scheme that eliminates the need
-                            for contiguous allocation of physical memory. It divides:
-                        </p>
-                        <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
-                            <li><strong>Logical Memory</strong> → Fixed-size blocks called <Highlight color="purple">Pages</Highlight></li>
-                            <li><strong>Physical Memory</strong> → Fixed-size blocks called <Highlight color="purple">Frames</Highlight></li>
-                        </ul>
-
-                        <h4 className="text-cyan-400 font-bold mb-2 mt-6">Key Concepts</h4>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="p-3 border border-purple-900/50 rounded bg-purple-900/10">
-                                <h5 className="text-purple-400 font-bold text-xs mb-2">PAGE TABLE</h5>
-                                <p className="text-xs">
-                                    Maps virtual page numbers to physical frame numbers. Each process
-                                    has its own page table maintained by the OS.
-                                </p>
-                            </div>
-                            <div className="p-3 border border-purple-900/50 rounded bg-purple-900/10">
-                                <h5 className="text-purple-400 font-bold text-xs mb-2">PAGE FAULT</h5>
-                                <p className="text-xs">
-                                    Occurs when a process accesses a page not currently in physical memory.
-                                    The OS must load the page from disk.
-                                </p>
-                            </div>
-                            <div className="p-3 border border-purple-900/50 rounded bg-purple-900/10">
-                                <h5 className="text-purple-400 font-bold text-xs mb-2">TLB (Translation Lookaside Buffer)</h5>
-                                <p className="text-xs">
-                                    A hardware cache that stores recent page table entries for
-                                    faster address translation.
-                                </p>
-                            </div>
-                            <div className="p-3 border border-purple-900/50 rounded bg-purple-900/10">
-                                <h5 className="text-purple-400 font-bold text-xs mb-2">DEMAND PAGING</h5>
-                                <p className="text-xs">
-                                    Pages are loaded into memory only when needed, not all at once.
-                                    This conserves memory and speeds up process startup.
-                                </p>
-                            </div>
-                        </div>
-
-                        <h4 className="text-cyan-400 font-bold mb-2 mt-6">Address Translation</h4>
-                        <CodeBlock>{`Logical Address = Page Number + Page Offset
-Physical Address = Frame Number + Page Offset
-
-Example (Page Size = 256 bytes):
-Logical Address: 1025
-Page Number:     1025 / 256 = 4
-Offset:          1025 % 256 = 1
-Physical Frame:  Page Table[4] → Frame 7
-Physical Addr:   7 × 256 + 1 = 1793`}</CodeBlock>
                     </DocSection>
                 </div>
 
@@ -229,15 +275,17 @@ Physical Addr:   7 × 256 + 1 = 1793`}</CodeBlock>
                                     <span className="text-gray-400 text-sm">First-In, First-Out</span>
                                 </div>
                                 <p className="text-xs mb-2">
-                                    Replaces the <strong>oldest page</strong> in memory. Simple to implement using a queue.
+                                    <strong>How it works:</strong> Keeps track of all pages in memory in a queue. When a page needs to be replaced, the page at the front of the queue (the oldest page) is selected for removal.
                                 </p>
-                                <div className="flex gap-4 text-xs">
-                                    <span className="text-green-400">✓ Simple implementation</span>
+                                <p className="text-xs mb-2 text-gray-400">
+                                    <em>Concept:</em> Fair policy that treats all pages equally based on arrival time, regardless of how frequently or recently they were accessed.
+                                </p>
+                                <div className="grid grid-cols-2 gap-2 text-xs mt-2">
+                                    <span className="text-green-400">✓ Simple to implement (queue)</span>
+                                    <span className="text-green-400">✓ Low overhead</span>
+                                    <span className="text-red-400">✗ Poor performance (high fault rate)</span>
                                     <span className="text-red-400">✗ Suffers from Belady's Anomaly</span>
                                 </div>
-                                <CodeBlock>{`Queue: [Page1, Page2, Page3]
-New Page4 arrives → Evict Page1
-Queue: [Page2, Page3, Page4]`}</CodeBlock>
                             </div>
 
                             {/* LRU */}
@@ -247,16 +295,17 @@ Queue: [Page2, Page3, Page4]`}</CodeBlock>
                                     <span className="text-gray-400 text-sm">Least Recently Used</span>
                                 </div>
                                 <p className="text-xs mb-2">
-                                    Replaces the page that has <strong>not been used for the longest time</strong>.
-                                    Based on temporal locality principle.
+                                    <strong>How it works:</strong> Replaces the page that has not been used for the longest period of time. Assumes that pages used recently will essentially be used again soon.
                                 </p>
-                                <div className="flex gap-4 text-xs">
-                                    <span className="text-green-400">✓ Good performance</span>
-                                    <span className="text-red-400">✗ Expensive to implement perfectly</span>
+                                <p className="text-xs mb-2 text-gray-400">
+                                    <em>Concept:</em> Based on <strong>Temporal Locality</strong>. If a program accesses a memory location, it is likely to access it (and nearby locations) again in the near future.
+                                </p>
+                                <div className="grid grid-cols-2 gap-2 text-xs mt-2">
+                                    <span className="text-green-400">✓ Excellent performance generally</span>
+                                    <span className="text-green-400">✓ No Belady's Anomaly</span>
+                                    <span className="text-red-400">✗ Requires hardware support (counters)</span>
+                                    <span className="text-red-400">✗ High overhead to maintain history</span>
                                 </div>
-                                <CodeBlock>{`Access History: [P3, P1, P2, P1, P3]
-Most Recent: P3 → Least Recent: P2
-On fault → Evict P2`}</CodeBlock>
                             </div>
 
                             {/* Optimal */}
@@ -266,43 +315,38 @@ On fault → Evict P2`}</CodeBlock>
                                     <span className="text-gray-400 text-sm">Optimal (Belady's Algorithm)</span>
                                 </div>
                                 <p className="text-xs mb-2">
-                                    Replaces the page that <strong>will not be used for the longest time</strong> in future.
-                                    Theoretically optimal but impossible to implement in practice.
+                                    <strong>How it works:</strong> Replaces the page that will not be used for the longest period of time in the future. Guarantees the lowest possible page-fault rate for a fixed number of frames.
                                 </p>
-                                <div className="flex gap-4 text-xs">
-                                    <span className="text-green-400">✓ Minimum page faults</span>
+                                <p className="text-xs mb-2 text-gray-400">
+                                    <em>Concept:</em> Since it requires future knowledge of the reference string, it is impossible to implement in a real-time OS. It is used primarily for benchmarking other algorithms.
+                                </p>
+                                <div className="grid grid-cols-2 gap-2 text-xs mt-2">
+                                    <span className="text-green-400">✓ Absolute minimum page faults</span>
+                                    <span className="text-green-400">✓ Best possible performance</span>
                                     <span className="text-red-400">✗ Requires future knowledge</span>
+                                    <span className="text-red-400">✗ Impossible to implement practically</span>
                                 </div>
                             </div>
 
-                            {/* Clock */}
+                            {/* MRU */}
                             <div className="p-4 border border-green-900/50 rounded bg-black/30">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2 py-0.5 bg-green-900/50 text-green-400 text-xs font-bold rounded">CLOCK</span>
-                                    <span className="text-gray-400 text-sm">Second Chance Algorithm</span>
+                                    <span className="px-2 py-0.5 bg-green-900/50 text-green-400 text-xs font-bold rounded">MRU</span>
+                                    <span className="text-gray-400 text-sm">Most Recently Used</span>
                                 </div>
                                 <p className="text-xs mb-2">
-                                    Approximates LRU using a circular buffer with <strong>reference bits</strong>.
-                                    Gives each page a "second chance" before eviction.
+                                    <strong>How it works:</strong> Replaces the page that was most recently accessed. This is the exact opposite of LRU.
                                 </p>
-                                <div className="flex gap-4 text-xs">
-                                    <span className="text-green-400">✓ Efficient implementation</span>
-                                    <span className="text-green-400">✓ Good LRU approximation</span>
+                                <p className="text-xs mb-2 text-gray-400">
+                                    <em>Concept:</em> Useful for patterns where data is accessed cyclically (e.g., repeatedly scanning a file larger than memory). In such cases, the most recently used page is the one that will not be needed for the longest time (until the loop restarts).
+                                </p>
+                                <div className="grid grid-cols-2 gap-2 text-xs mt-2">
+                                    <span className="text-green-400">✓ Good for cyclic access patterns</span>
+                                    <span className="text-green-400">✓ Simple to implement</span>
+                                    <span className="text-red-400">✗ Poor for standard locality</span>
+                                    <span className="text-red-400">✗ Counter-intuitive for most apps</span>
                                 </div>
-                                <CodeBlock>{`Circular Buffer with Reference Bits:
-[P1:1] → [P2:0] → [P3:1] → [P4:0]
-          ↑ clock hand
-If ref=1: clear bit, move on
-If ref=0: evict this page`}</CodeBlock>
                             </div>
-                        </div>
-
-                        <div className="mt-4 p-3 border border-yellow-900/50 rounded bg-yellow-900/10">
-                            <p className="text-yellow-400 text-xs font-bold mb-2">⚠️ BELADY'S ANOMALY</p>
-                            <p className="text-xs">
-                                Counter-intuitively, FIFO can have <strong>more page faults</strong> with more frames!
-                                This phenomenon doesn't occur with LRU or Optimal algorithms.
-                            </p>
                         </div>
                     </DocSection>
                 </div>
@@ -336,10 +380,6 @@ If ref=0: evict this page`}</CodeBlock>
                                     <span className="text-red-400">✗ May fragment beginning of memory</span>
                                     <span className="text-yellow-400">○ Generally good performance</span>
                                 </div>
-                                <CodeBlock>{`Memory: [100KB free] [200KB used] [300KB free] [150KB free]
-Request: 120KB
-Result: Allocate from 300KB block (first fit found)
-After:  [100KB free] [200KB used] [120KB used][180KB free] [150KB free]`}</CodeBlock>
                             </div>
 
                             {/* Best Fit */}
@@ -357,11 +397,6 @@ After:  [100KB free] [200KB used] [120KB used][180KB free] [150KB free]`}</CodeB
                                     <span className="text-red-400">✗ Slower - must scan all holes</span>
                                     <span className="text-red-400">✗ Creates many tiny unusable fragments</span>
                                 </div>
-                                <CodeBlock>{`Memory: [100KB free] [200KB used] [300KB free] [150KB free]
-Request: 120KB
-Scan all: 100KB (too small), 300KB (fit), 150KB (better fit!)
-Result: Allocate from 150KB block (smallest fit)
-After:  [100KB free] [200KB used] [300KB free] [120KB used][30KB free]`}</CodeBlock>
                             </div>
 
                             {/* Worst Fit */}
@@ -379,11 +414,6 @@ After:  [100KB free] [200KB used] [300KB free] [120KB used][30KB free]`}</CodeBl
                                     <span className="text-red-400">✗ Breaks up large blocks quickly</span>
                                     <span className="text-red-400">✗ Generally worst performance</span>
                                 </div>
-                                <CodeBlock>{`Memory: [100KB free] [200KB used] [300KB free] [150KB free]
-Request: 120KB
-Find largest: 300KB
-Result: Allocate from 300KB block (largest hole)
-After:  [100KB free] [200KB used] [120KB used][180KB free] [150KB free]`}</CodeBlock>
                             </div>
 
                             {/* Next Fit */}
@@ -403,135 +433,334 @@ After:  [100KB free] [200KB used] [120KB used][180KB free] [150KB free]`}</CodeB
                             </div>
                         </div>
 
-                        <h4 className="text-cyan-400 font-bold mb-2 mt-6">External vs Internal Fragmentation</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="p-3 border border-red-900/50 rounded bg-red-900/10">
-                                <h5 className="text-red-400 font-bold text-xs mb-2">EXTERNAL FRAGMENTATION</h5>
-                                <p className="text-xs">
-                                    Total free memory exists but is scattered in small non-contiguous blocks.
-                                    A request may fail even though enough total memory is free.
-                                </p>
-                                <p className="text-xs mt-2 text-gray-400">
-                                    Solution: <Highlight color="green">Compaction</Highlight> or <Highlight color="green">Paging</Highlight>
-                                </p>
-                            </div>
-                            <div className="p-3 border border-orange-900/50 rounded bg-orange-900/10">
-                                <h5 className="text-orange-400 font-bold text-xs mb-2">INTERNAL FRAGMENTATION</h5>
-                                <p className="text-xs">
-                                    Memory allocated to a process is slightly larger than requested.
-                                    The unused portion within the allocated block is wasted.
-                                </p>
-                                <p className="text-xs mt-2 text-gray-400">
-                                    Common with <Highlight color="yellow">fixed partitioning</Highlight> and <Highlight color="yellow">paging</Highlight>
-                                </p>
-                            </div>
-                        </div>
+                        <h4 className="text-cyan-400 font-bold mb-4 mt-6">Allocation Algorithms Visual Comparison</h4>
+                        <AllocationAlgorithmsComparison />
+
+                        <h4 className="text-cyan-400 font-bold mb-4 mt-6">External vs Internal Fragmentation</h4>
+                        <FragmentationComparison />
                     </DocSection>
                 </div>
 
-                {/* Scheduling Section */}
-                <div id="scheduling">
+                {/* C Code Section */}
+                <div id="c-code">
                     <DocSection
-                        title="⏱️ CPU SCHEDULING ALGORITHMS"
-                        isOpen={openSections.includes('scheduling')}
-                        onToggle={() => toggleSection('scheduling')}
+                        title="💻 C CODE IMPLEMENTATIONS"
+                        isOpen={openSections.includes('c-code')}
+                        onToggle={() => toggleSection('c-code')}
                     >
-                        <p>
-                            <Highlight>CPU Scheduling</Highlight> determines which process runs on the CPU at any given time.
-                            The goal is to maximize CPU utilization and provide fair access to all processes.
-                        </p>
+                        <h4 className="text-cyan-400 font-bold mb-3">Memory Allocation Algorithms</h4>
 
-                        <div className="space-y-4 mt-4">
-                            {/* FCFS */}
-                            <div className="p-4 border border-cyan-900/50 rounded bg-black/30">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2 py-0.5 bg-cyan-900/50 text-cyan-400 text-xs font-bold rounded">FCFS</span>
-                                    <span className="text-gray-400 text-sm">First-Come, First-Served</span>
-                                </div>
-                                <p className="text-xs mb-2">
-                                    Processes are executed in the <strong>order they arrive</strong>. Non-preemptive.
-                                </p>
-                                <div className="grid grid-cols-2 gap-2 text-xs mt-2">
-                                    <span className="text-green-400">✓ Simple and fair</span>
-                                    <span className="text-green-400">✓ No starvation</span>
-                                    <span className="text-red-400">✗ Convoy effect (short waits for long)</span>
-                                    <span className="text-red-400">✗ Poor average waiting time</span>
-                                </div>
-                            </div>
-
-                            {/* Round Robin */}
-                            <div className="p-4 border border-purple-900/50 rounded bg-black/30">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2 py-0.5 bg-purple-900/50 text-purple-400 text-xs font-bold rounded">RR</span>
-                                    <span className="text-gray-400 text-sm">Round Robin</span>
-                                </div>
-                                <p className="text-xs mb-2">
-                                    Each process gets a fixed <Highlight color="yellow">time quantum</Highlight>.
-                                    After the quantum expires, the process is preempted and added to the end of the ready queue.
-                                </p>
-                                <div className="grid grid-cols-2 gap-2 text-xs mt-2">
-                                    <span className="text-green-400">✓ Fair time distribution</span>
-                                    <span className="text-green-400">✓ Good for time-sharing systems</span>
-                                    <span className="text-yellow-400">○ Performance depends on quantum size</span>
-                                    <span className="text-red-400">✗ Context switch overhead</span>
-                                </div>
-                                <CodeBlock>{`Time Quantum = 4 units
-P1(10) → P2(5) → P3(8)
-
-Timeline:
-[0-4: P1] → [4-8: P2] → [8-12: P3] → [12-16: P1] → 
-[16-17: P2 done] → [17-21: P3] → [21-23: P1 done] → [23-24: P3 done]`}</CodeBlock>
-                            </div>
-
-                            {/* Priority */}
-                            <div className="p-4 border border-yellow-900/50 rounded bg-black/30">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2 py-0.5 bg-yellow-900/50 text-yellow-400 text-xs font-bold rounded">PRIORITY</span>
-                                </div>
-                                <p className="text-xs mb-2">
-                                    Processes with <strong>higher priority</strong> are executed first.
-                                    Can be preemptive or non-preemptive.
-                                </p>
-                                <div className="grid grid-cols-2 gap-2 text-xs mt-2">
-                                    <span className="text-green-400">✓ Important processes run first</span>
-                                    <span className="text-green-400">✓ Flexible priority assignment</span>
-                                    <span className="text-red-400">✗ Starvation of low-priority processes</span>
-                                    <span className="text-yellow-400">○ Solution: Aging (increase priority over time)</span>
-                                </div>
-                            </div>
-
-                            {/* SJF */}
-                            <div className="p-4 border border-green-900/50 rounded bg-black/30">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2 py-0.5 bg-green-900/50 text-green-400 text-xs font-bold rounded">SJF</span>
-                                    <span className="text-gray-400 text-sm">Shortest Job First</span>
-                                </div>
-                                <p className="text-xs mb-2">
-                                    Process with the <strong>shortest burst time</strong> is executed first.
-                                    Optimal for minimizing average waiting time.
-                                </p>
-                                <div className="grid grid-cols-2 gap-2 text-xs mt-2">
-                                    <span className="text-green-400">✓ Optimal average waiting time</span>
-                                    <span className="text-red-400">✗ Requires knowing burst time in advance</span>
-                                    <span className="text-red-400">✗ Starvation of long processes</span>
-                                </div>
-                            </div>
+                        {/* First Fit C Code */}
+                        <div className="mb-6">
+                            <h5 className="text-purple-400 font-bold text-sm mb-2">First Fit Algorithm</h5>
+                            <CodeBlock>{`// First Fit Memory Allocation
+int firstFit(int blockSize[], int m, int processSize[], int n) {
+    int allocation[n];
+    
+    // Initialize all allocations as -1 (not allocated)
+    for (int i = 0; i < n; i++)
+        allocation[i] = -1;
+    
+    // Pick each process and find suitable block
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (blockSize[j] >= processSize[i]) {
+                // Allocate block j to process i
+                allocation[i] = j;
+                blockSize[j] -= processSize[i];
+                break;  // Stop at first fit
+            }
+        }
+    }
+    
+    return 0;
+}`}</CodeBlock>
                         </div>
 
-                        <h4 className="text-cyan-400 font-bold mb-2 mt-6">Key Metrics</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="p-3 border border-cyan-900/50 rounded bg-cyan-900/10 text-center">
-                                <h5 className="text-cyan-400 font-bold text-xs mb-1">WAITING TIME</h5>
-                                <p className="text-[10px] text-gray-400">Time spent in ready queue</p>
-                            </div>
-                            <div className="p-3 border border-purple-900/50 rounded bg-purple-900/10 text-center">
-                                <h5 className="text-purple-400 font-bold text-xs mb-1">TURNAROUND TIME</h5>
-                                <p className="text-[10px] text-gray-400">Total time from arrival to completion</p>
-                            </div>
-                            <div className="p-3 border border-green-900/50 rounded bg-green-900/10 text-center">
-                                <h5 className="text-green-400 font-bold text-xs mb-1">RESPONSE TIME</h5>
-                                <p className="text-[10px] text-gray-400">Time until first CPU access</p>
-                            </div>
+                        {/* Best Fit C Code */}
+                        <div className="mb-6">
+                            <h5 className="text-purple-400 font-bold text-sm mb-2">Best Fit Algorithm</h5>
+                            <CodeBlock>{`// Best Fit Memory Allocation
+int bestFit(int blockSize[], int m, int processSize[], int n) {
+    int allocation[n];
+    
+    for (int i = 0; i < n; i++)
+        allocation[i] = -1;
+    
+    for (int i = 0; i < n; i++) {
+        int bestIdx = -1;
+        for (int j = 0; j < m; j++) {
+            if (blockSize[j] >= processSize[i]) {
+                if (bestIdx == -1 || blockSize[bestIdx] > blockSize[j])
+                    bestIdx = j;
+            }
+        }
+        
+        // If we found a block, allocate it
+        if (bestIdx != -1) {
+            allocation[i] = bestIdx;
+            blockSize[bestIdx] -= processSize[i];
+        }
+    }
+    
+    return 0;
+}`}</CodeBlock>
+                        </div>
+
+                        {/* Worst Fit C Code */}
+                        <div className="mb-6">
+                            <h5 className="text-purple-400 font-bold text-sm mb-2">Worst Fit Algorithm</h5>
+                            <CodeBlock>{`// Worst Fit Memory Allocation
+int worstFit(int blockSize[], int m, int processSize[], int n) {
+    int allocation[n];
+    
+    for (int i = 0; i < n; i++)
+        allocation[i] = -1;
+    
+    for (int i = 0; i < n; i++) {
+        int worstIdx = -1;
+        for (int j = 0; j < m; j++) {
+            if (blockSize[j] >= processSize[i]) {
+                if (worstIdx == -1 || blockSize[worstIdx] < blockSize[j])
+                    worstIdx = j;
+            }
+        }
+        
+        // Allocate largest block
+        if (worstIdx != -1) {
+            allocation[i] = worstIdx;
+            blockSize[worstIdx] -= processSize[i];
+        }
+    }
+    
+    return 0;
+}`}</CodeBlock>
+                        </div>
+
+                        {/* Next Fit C Code */}
+                        <div className="mb-6">
+                            <h5 className="text-purple-400 font-bold text-sm mb-2">Next Fit Algorithm</h5>
+                            <CodeBlock>{`// Next Fit Memory Allocation
+int nextFit(int blockSize[], int m, int processSize[], int n) {
+    int allocation[n];
+    int j = 0;  // Start from beginning
+    
+    for (int i = 0; i < n; i++)
+        allocation[i] = -1;
+    
+    for (int i = 0; i < n; i++) {
+        int count = 0;
+        // Search from last position
+        while (count < m) {
+            if (blockSize[j] >= processSize[i]) {
+                allocation[i] = j;
+                blockSize[j] -= processSize[i];
+                break;
+            }
+            j = (j + 1) % m;  // Circular search
+            count++;
+        }
+    }
+    
+    return 0;
+}`}</CodeBlock>
+                        </div>
+
+                        <h4 className="text-cyan-400 font-bold mb-3 mt-8">Page Replacement Algorithms</h4>
+
+                        {/* FIFO Page Replacement */}
+                        <div className="mb-6">
+                            <h5 className="text-purple-400 font-bold text-sm mb-2">FIFO Page Replacement</h5>
+                            <CodeBlock>{`// FIFO Page Replacement
+int fifoPageReplacement(int pages[], int n, int capacity) {
+    int frame[capacity];
+    int front = 0;
+    int pageFaults = 0;
+    int count = 0;
+    
+    for (int i = 0; i < capacity; i++)
+        frame[i] = -1;
+    
+    for (int i = 0; i < n; i++) {
+        int found = 0;
+        
+        // Check if page already in frame
+        for (int j = 0; j < capacity; j++) {
+            if (frame[j] == pages[i]) {
+                found = 1;
+                break;
+            }
+        }
+        
+        if (!found) {
+            if (count < capacity) {
+                frame[count++] = pages[i];
+            } else {
+                frame[front] = pages[i];
+                front = (front + 1) % capacity;
+            }
+            pageFaults++;
+        }
+    }
+    
+    return pageFaults;
+}`}</CodeBlock>
+                        </div>
+
+                        {/* LRU Page Replacement */}
+                        <div className="mb-6">
+                            <h5 className="text-purple-400 font-bold text-sm mb-2">LRU Page Replacement</h5>
+                            <CodeBlock>{`// LRU Page Replacement
+int lruPageReplacement(int pages[], int n, int capacity) {
+    int frame[capacity];
+    int time[capacity];
+    int pageFaults = 0;
+    int count = 0;
+    
+    for (int i = 0; i < capacity; i++) {
+        frame[i] = -1;
+        time[i] = 0;
+    }
+    
+    for (int i = 0; i < n; i++) {
+        int found = 0;
+        
+        // Check if page in frame
+        for (int j = 0; j < capacity; j++) {
+            if (frame[j] == pages[i]) {
+                found = 1;
+                time[j] = i;  // Update access time
+                break;
+            }
+        }
+        
+        if (!found) {
+            if (count < capacity) {
+                frame[count] = pages[i];
+                time[count] = i;
+                count++;
+            } else {
+                // Find LRU page
+                int lru = 0;
+                for (int j = 1; j < capacity; j++) {
+                    if (time[j] < time[lru])
+                        lru = j;
+                }
+                frame[lru] = pages[i];
+                time[lru] = i;
+            }
+            pageFaults++;
+        }
+    }
+    
+    return pageFaults;
+}`}</CodeBlock>
+                        </div>
+
+                        {/* Optimal Page Replacement */}
+                        <div className="mb-6">
+                            <h5 className="text-purple-400 font-bold text-sm mb-2">Optimal Page Replacement</h5>
+                            <CodeBlock>{`// Optimal Page Replacement
+int optimalPageReplacement(int pages[], int n, int capacity) {
+    int frame[capacity];
+    int pageFaults = 0;
+    int count = 0;
+    
+    for (int i = 0; i < capacity; i++)
+        frame[i] = -1;
+    
+    for (int i = 0; i < n; i++) {
+        int found = 0;
+        
+        for (int j = 0; j < capacity; j++) {
+            if (frame[j] == pages[i]) {
+                found = 1;
+                break;
+            }
+        }
+        
+        if (!found) {
+            if (count < capacity) {
+                frame[count++] = pages[i];
+            } else {
+                // Find page used farthest in future
+                int farthest = i + 1;
+                int replaceIdx = 0;
+                
+                for (int j = 0; j < capacity; j++) {
+                    int k;
+                    for (k = i + 1; k < n; k++) {
+                        if (frame[j] == pages[k]) {
+                            if (k > farthest) {
+                                farthest = k;
+                                replaceIdx = j;
+                            }
+                            break;
+                        }
+                    }
+                    if (k == n) {  // Page not used again
+                        replaceIdx = j;
+                        break;
+                    }
+                }
+                frame[replaceIdx] = pages[i];
+            }
+            pageFaults++;
+        }
+    }
+    
+    return pageFaults;
+}`}</CodeBlock>
+                        </div>
+
+                        {/* MRU Page Replacement */}
+                        <div className="mb-6">
+                            <h5 className="text-purple-400 font-bold text-sm mb-2">MRU (Most Recently Used) Algorithm</h5>
+                            <CodeBlock>{`// MRU Page Replacement
+int mruPageReplacement(int pages[], int n, int capacity) {
+    int frame[capacity];
+    int time[capacity];
+    int pageFaults = 0;
+    int count = 0;
+    
+    for (int i = 0; i < capacity; i++) {
+        frame[i] = -1;
+        time[i] = 0;
+    }
+    
+    for (int i = 0; i < n; i++) {
+        int found = 0;
+        
+        // Check if page in frame
+        for (int j = 0; j < capacity; j++) {
+            if (frame[j] == pages[i]) {
+                found = 1;
+                time[j] = i;  // Update access time
+                break;
+            }
+        }
+        
+        if (!found) {
+            if (count < capacity) {
+                frame[count] = pages[i];
+                time[count] = i;
+                count++;
+            } else {
+                // Find MRU page (most recently used)
+                int mru = 0;
+                for (int j = 1; j < capacity; j++) {
+                    if (time[j] > time[mru])
+                        mru = j;
+                }
+                frame[mru] = pages[i];
+                time[mru] = i;
+            }
+            pageFaults++;
+        }
+    }
+    
+    return pageFaults;
+}`}</CodeBlock>
                         </div>
                     </DocSection>
                 </div>
@@ -540,3 +769,4 @@ Timeline:
         </div>
     );
 }
+

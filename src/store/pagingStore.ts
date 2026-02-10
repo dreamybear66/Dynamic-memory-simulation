@@ -4,7 +4,7 @@ import { create } from 'zustand';
 // TYPES & INTERFACES
 // ============================================================================
 
-export type PageReplacementAlgo = 'FIFO' | 'LRU' | 'Optimal' | 'Clock';
+export type PageReplacementAlgo = 'FIFO' | 'LRU' | 'Optimal' | 'Clock' | 'MFU';
 export type TLBReplacementPolicy = 'FIFO' | 'LRU';
 export type SimulationMode = 'manual' | 'auto';
 
@@ -76,7 +76,7 @@ export interface PagingStatistics {
     tlbMisses: number;
     pageFaultRate: number;        // Calculated
     tlbHitRate: number;           // Calculated
-    
+
     // Historical data for charts
     pageFaultHistory: number[];   // Page faults over time
     tlbHitHistory: number[];      // TLB hits over time
@@ -91,7 +91,7 @@ export interface MemoryConfig {
     physicalMemorySize: number;       // In bytes (e.g., 32768 for 32KB)
     pageSize: number;                 // In bytes (e.g., 4096 for 4KB)
     tlbSize: number;                  // Number of TLB entries
-    
+
     // Calculated values
     numPages: number;                 // Total logical pages
     numFrames: number;                // Total physical frames
@@ -119,19 +119,19 @@ export interface PagingState {
     config: MemoryConfig;
     replacementAlgo: PageReplacementAlgo;
     tlbPolicy: TLBReplacementPolicy;
-    
+
     // Memory State
     pageTable: Record<number, PageTableEntry>;
     tlb: TLBEntry[];
     frames: Frame[];
     clockPointer: number;             // For Clock algorithm
-    
+
     // Statistics
     stats: PagingStatistics;
-    
+
     // Simulation Control
     simulation: SimulationControl;
-    
+
     // Current Translation State (for visualization)
     currentTranslation: {
         logicalAddress: number | null;
@@ -139,7 +139,7 @@ export interface PagingState {
         currentStep: number;
         result: AccessResult | null;
     };
-    
+
     // Page Fault State
     pageFaultActive: boolean;
     lastPageFault: {
@@ -147,37 +147,43 @@ export interface PagingState {
         replacedPage: number | null;
         timestamp: number;
     } | null;
-    
+
     // System Logs
     logs: string[];
-    
+
     // ========================================================================
     // ACTIONS
     // ========================================================================
-    
+
     // Configuration Actions
     setMemoryConfig: (config: Partial<MemoryConfig>) => void;
     setReplacementAlgo: (algo: PageReplacementAlgo) => void;
     setTLBPolicy: (policy: TLBReplacementPolicy) => void;
-    
+
     // Simulation Control
     setSimulationMode: (mode: SimulationMode) => void;
     toggleSimulation: () => void;
     setSpeed: (speed: number) => void;
     stepSimulation: () => void;
     resetSimulation: () => void;
-    
+
     // Memory Access
     accessMemory: (logicalAddress: number, pid?: number) => AccessResult;
     generateRandomAccess: () => void;
-    
+
     // Translation Visualization
     setCurrentStep: (step: number) => void;
     clearTranslation: () => void;
-    
+
     // Utility
     addLog: (message: string) => void;
     clearLogs: () => void;
+
+    // External Data Sync
+    setStats: (stats: Partial<PagingStatistics>) => void;
+
+    // Internal Helper
+    selectVictimFrame: () => number;
 }
 
 // ============================================================================
@@ -268,18 +274,18 @@ export const usePagingStore = create<PagingState>((set, get) => {
         offsetBits: 12,                   // log2(4096)
         pageNumberBits: 4                 // log2(16)
     };
-    
+
     return {
         // Initial State
         config: defaultConfig,
         replacementAlgo: 'FIFO',
         tlbPolicy: 'FIFO',
-        
+
         pageTable: initializePageTable(defaultConfig.numPages),
         tlb: [],
         frames: initializeFrames(defaultConfig.numFrames),
         clockPointer: 0,
-        
+
         stats: {
             totalAccesses: 0,
             pageFaults: 0,
@@ -291,7 +297,7 @@ export const usePagingStore = create<PagingState>((set, get) => {
             tlbHitHistory: [],
             accessHistory: []
         },
-        
+
         simulation: {
             mode: 'manual',
             isRunning: false,
@@ -299,27 +305,27 @@ export const usePagingStore = create<PagingState>((set, get) => {
             currentStep: 0,
             autoGenerateInterval: 1000
         },
-        
+
         currentTranslation: {
             logicalAddress: null,
             steps: [],
             currentStep: 0,
             result: null
         },
-        
+
         pageFaultActive: false,
         lastPageFault: null,
-        
+
         logs: ['Paging system initialized.'],
-        
+
         // ====================================================================
         // ACTION IMPLEMENTATIONS
         // ====================================================================
-        
+
         setMemoryConfig: (newConfig) => {
             const current = get().config;
             const updated = { ...current, ...newConfig };
-            
+
             // Recalculate derived values
             updated.numPages = updated.logicalAddressSpaceSize / updated.pageSize;
             updated.numFrames = updated.physicalMemorySize / updated.pageSize;
@@ -328,7 +334,7 @@ export const usePagingStore = create<PagingState>((set, get) => {
                 updated.logicalAddressSpaceSize,
                 updated.pageSize
             );
-            
+
             // Reinitialize memory structures
             set({
                 config: updated,
@@ -337,42 +343,42 @@ export const usePagingStore = create<PagingState>((set, get) => {
                 tlb: [],
                 clockPointer: 0
             });
-            
+
             get().addLog(`Memory reconfigured: ${updated.numPages} pages, ${updated.numFrames} frames`);
         },
-        
+
         setReplacementAlgo: (algo) => {
             set({ replacementAlgo: algo });
             get().addLog(`Page replacement algorithm: ${algo}`);
         },
-        
+
         setTLBPolicy: (policy) => {
             set({ tlbPolicy: policy });
             get().addLog(`TLB replacement policy: ${policy}`);
         },
-        
+
         setSimulationMode: (mode) => {
             set(state => ({
                 simulation: { ...state.simulation, mode }
             }));
         },
-        
+
         toggleSimulation: () => {
             set(state => ({
                 simulation: { ...state.simulation, isRunning: !state.simulation.isRunning }
             }));
         },
-        
+
         setSpeed: (speed) => {
             set(state => ({
                 simulation: { ...state.simulation, speed }
             }));
         },
-        
+
         stepSimulation: () => {
             get().generateRandomAccess();
         },
-        
+
         resetSimulation: () => {
             const config = get().config;
             set({
@@ -402,21 +408,21 @@ export const usePagingStore = create<PagingState>((set, get) => {
                 logs: ['System reset.']
             });
         },
-        
+
         accessMemory: (logicalAddress, pid = 1) => {
             const state = get();
             const { config, pageTable, tlb, frames, replacementAlgo, tlbPolicy } = state;
-            
+
             // Extract page number and offset
             const pageNumber = extractPageNumber(logicalAddress, config.offsetBits);
             const offset = extractOffset(logicalAddress, config.offsetBits);
-            
+
             const steps: TranslationStep[] = [];
             let tlbHit = false;
             let pageFault = false;
             let replacedPage: number | null = null;
             let frameNumber: number | null = null;
-            
+
             // Step 1: Extract page number and offset
             steps.push({
                 step: 1,
@@ -431,13 +437,13 @@ export const usePagingStore = create<PagingState>((set, get) => {
                 highlight: ['logical-address'],
                 status: 'complete'
             });
-            
+
             // Step 2: Check TLB
             const tlbEntry = tlb.find(entry => entry.pageNumber === pageNumber);
             if (tlbEntry) {
                 tlbHit = true;
                 frameNumber = tlbEntry.frameNumber;
-                
+
                 steps.push({
                     step: 2,
                     title: 'TLB Hit!',
@@ -446,7 +452,7 @@ export const usePagingStore = create<PagingState>((set, get) => {
                     highlight: ['tlb'],
                     status: 'complete'
                 });
-                
+
                 // Update TLB entry for LRU
                 if (tlbPolicy === 'LRU') {
                     tlbEntry.lastAccessTime = Date.now();
@@ -461,14 +467,14 @@ export const usePagingStore = create<PagingState>((set, get) => {
                     status: 'complete'
                 });
             }
-            
+
             // Step 3: Check Page Table (if TLB miss)
             if (!tlbHit) {
                 const pageEntry = pageTable[pageNumber];
-                
+
                 if (pageEntry && pageEntry.valid) {
                     frameNumber = pageEntry.frameNumber!;
-                    
+
                     steps.push({
                         step: 3,
                         title: 'Page Table Hit',
@@ -477,7 +483,7 @@ export const usePagingStore = create<PagingState>((set, get) => {
                         highlight: ['page-table'],
                         status: 'complete'
                     });
-                    
+
                     // Update TLB
                     const newTLB = [...tlb];
                     if (newTLB.length >= config.tlbSize) {
@@ -491,19 +497,19 @@ export const usePagingStore = create<PagingState>((set, get) => {
                             newTLB.splice(lruIndex, 1);
                         }
                     }
-                    
+
                     newTLB.push({
                         pageNumber,
                         frameNumber,
                         lastAccessTime: Date.now(),
                         insertionOrder: state.stats.totalAccesses
                     });
-                    
+
                     set({ tlb: newTLB });
                 } else {
                     // Page Fault!
                     pageFault = true;
-                    
+
                     steps.push({
                         step: 3,
                         title: 'Page Fault!',
@@ -512,28 +518,28 @@ export const usePagingStore = create<PagingState>((set, get) => {
                         highlight: ['page-table'],
                         status: 'error'
                     });
-                    
+
                     // Find free frame or select victim
                     let targetFrame = frames.findIndex(f => f.pageNumber === null);
-                    
+
                     if (targetFrame === -1) {
                         // No free frames - need replacement
                         targetFrame = get().selectVictimFrame();
                         const victimPage = frames[targetFrame].pageNumber!;
                         replacedPage = victimPage;
-                        
+
                         // Invalidate victim page in page table
                         if (pageTable[victimPage]) {
                             pageTable[victimPage].valid = false;
                             pageTable[victimPage].frameNumber = null;
                         }
-                        
+
                         // Remove from TLB if present
                         const tlbIndex = tlb.findIndex(e => e.pageNumber === victimPage);
                         if (tlbIndex !== -1) {
                             tlb.splice(tlbIndex, 1);
                         }
-                        
+
                         steps.push({
                             step: 4,
                             title: 'Page Replacement',
@@ -543,11 +549,11 @@ export const usePagingStore = create<PagingState>((set, get) => {
                             status: 'complete'
                         });
                     }
-                    
+
                     // Load page into frame
                     frameNumber = targetFrame;
                     const now = Date.now();
-                    
+
                     frames[targetFrame] = {
                         pageNumber,
                         pid,
@@ -555,7 +561,7 @@ export const usePagingStore = create<PagingState>((set, get) => {
                         lastAccessTime: now,
                         referenced: true
                     };
-                    
+
                     pageTable[pageNumber] = {
                         frameNumber: targetFrame,
                         valid: true,
@@ -565,7 +571,7 @@ export const usePagingStore = create<PagingState>((set, get) => {
                         lastAccessTime: now,
                         pid
                     };
-                    
+
                     // Add to TLB
                     const newTLB = [...tlb];
                     if (newTLB.length >= config.tlbSize) {
@@ -577,14 +583,14 @@ export const usePagingStore = create<PagingState>((set, get) => {
                             newTLB.splice(lruIndex, 1);
                         }
                     }
-                    
+
                     newTLB.push({
                         pageNumber,
                         frameNumber: targetFrame,
                         lastAccessTime: now,
                         insertionOrder: state.stats.totalAccesses
                     });
-                    
+
                     set({
                         frames: [...frames],
                         pageTable: { ...pageTable },
@@ -596,15 +602,15 @@ export const usePagingStore = create<PagingState>((set, get) => {
                             timestamp: now
                         }
                     });
-                    
+
                     // Clear page fault indicator after animation
                     setTimeout(() => set({ pageFaultActive: false }), 2000);
                 }
             }
-            
+
             // Step 4/5: Generate Physical Address
             const physicalAddress = generatePhysicalAddress(frameNumber!, offset, config.offsetBits);
-            
+
             steps.push({
                 step: steps.length + 1,
                 title: 'Physical Address Generated',
@@ -613,12 +619,12 @@ export const usePagingStore = create<PagingState>((set, get) => {
                 highlight: ['physical-address'],
                 status: 'complete'
             });
-            
+
             // Update statistics
             const newStats = { ...state.stats };
             newStats.totalAccesses++;
             newStats.accessHistory.push(logicalAddress);
-            
+
             if (tlbHit) {
                 newStats.tlbHits++;
                 newStats.tlbHitHistory.push(1);
@@ -626,19 +632,19 @@ export const usePagingStore = create<PagingState>((set, get) => {
                 newStats.tlbMisses++;
                 newStats.tlbHitHistory.push(0);
             }
-            
+
             if (pageFault) {
                 newStats.pageFaults++;
                 newStats.pageFaultHistory.push(1);
             } else {
                 newStats.pageFaultHistory.push(0);
             }
-            
+
             newStats.tlbHitRate = (newStats.tlbHits / newStats.totalAccesses) * 100;
             newStats.pageFaultRate = (newStats.pageFaults / newStats.totalAccesses) * 100;
-            
+
             set({ stats: newStats });
-            
+
             // Update current translation for visualization
             const result: AccessResult = {
                 success: true,
@@ -648,7 +654,7 @@ export const usePagingStore = create<PagingState>((set, get) => {
                 replacedPage,
                 steps
             };
-            
+
             set({
                 currentTranslation: {
                     logicalAddress,
@@ -657,29 +663,29 @@ export const usePagingStore = create<PagingState>((set, get) => {
                     result
                 }
             });
-            
+
             get().addLog(
                 `Access ${logicalAddress}: Page ${pageNumber} → Frame ${frameNumber} ` +
                 `(TLB: ${tlbHit ? 'HIT' : 'MISS'}, PF: ${pageFault ? 'YES' : 'NO'})`
             );
-            
+
             return result;
         },
-        
+
         selectVictimFrame: (): number => {
             const { frames, replacementAlgo, clockPointer } = get();
-            
+
             switch (replacementAlgo) {
                 case 'FIFO':
                     // Find oldest frame
                     return frames.reduce((oldest, frame, idx, arr) =>
                         frame.loadedAt < arr[oldest].loadedAt ? idx : oldest, 0);
-                
+
                 case 'LRU':
                     // Find least recently used
                     return frames.reduce((lru, frame, idx, arr) =>
                         frame.lastAccessTime < arr[lru].lastAccessTime ? idx : lru, 0);
-                
+
                 case 'Clock':
                     // Second chance algorithm
                     let pointer = clockPointer;
@@ -691,24 +697,24 @@ export const usePagingStore = create<PagingState>((set, get) => {
                         frames[pointer].referenced = false;
                         pointer = (pointer + 1) % frames.length;
                     }
-                
+
                 case 'Optimal':
                     // For now, use FIFO (Optimal requires future knowledge)
                     return frames.reduce((oldest, frame, idx, arr) =>
                         frame.loadedAt < arr[oldest].loadedAt ? idx : oldest, 0);
-                
+
                 default:
                     return 0;
             }
         },
-        
+
         generateRandomAccess: () => {
             const { config } = get();
             const maxAddress = config.logicalAddressSpaceSize - 1;
             const randomAddress = Math.floor(Math.random() * maxAddress);
             get().accessMemory(randomAddress);
         },
-        
+
         setCurrentStep: (step) => {
             set(state => ({
                 currentTranslation: {
@@ -717,7 +723,7 @@ export const usePagingStore = create<PagingState>((set, get) => {
                 }
             }));
         },
-        
+
         clearTranslation: () => {
             set({
                 currentTranslation: {
@@ -728,15 +734,21 @@ export const usePagingStore = create<PagingState>((set, get) => {
                 }
             });
         },
-        
+
         addLog: (message) => {
             set(state => ({
                 logs: [`[${state.stats.totalAccesses}] ${message}`, ...state.logs].slice(0, 100)
             }));
         },
-        
+
         clearLogs: () => {
             set({ logs: [] });
+        },
+
+        setStats: (newStats) => {
+            set(state => ({
+                stats: { ...state.stats, ...newStats }
+            }));
         }
     };
 });

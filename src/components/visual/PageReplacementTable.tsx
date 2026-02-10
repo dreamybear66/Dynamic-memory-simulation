@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePagingStore } from '@/store/pagingStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { Plus, Trash2, RotateCcw, Play, Pause, SkipForward, AlertTriangle } from 'lucide-react';
@@ -267,7 +268,51 @@ export default function PageReplacementTable() {
     const workingSetSize = currentWorkingSet.size;
     const memoryPressure = workingSetSize / numFrames;
 
-    // Current PFF
+    // Global Store Integration
+    const { setStats, setReplacementAlgo, addLog } = usePagingStore();
+
+    // Sync algorithm
+    useEffect(() => {
+        setReplacementAlgo(algorithm);
+    }, [algorithm, setReplacementAlgo]);
+
+    // Update global store when simulation executes or steps change
+    useEffect(() => {
+        if (isExecuted) {
+            // Calculate current visible stats
+            const visibleStates = allFrameStates.slice(0, currentStep + 1);
+            const totalAccesses = visibleStates.length;
+            const hits = visibleStates.filter(s => s.hit).length;
+            const misses = visibleStates.filter(s => !s.hit).length;
+            const currentHitRate = totalAccesses > 0 ? (hits / totalAccesses) * 100 : 0;
+            const currentFaultRate = totalAccesses > 0 ? (misses / totalAccesses) * 100 : 0;
+
+            // Create history arrays (1 for fault/miss, 0 for hit)
+            // The report graph looks at pageFaultHistory
+            const faultHistory = visibleStates.map(s => s.hit ? 0 : 1);
+            const hitHistory = visibleStates.map(s => s.hit ? 1 : 0);
+
+            // Update Global Store
+            setStats({
+                pageFaultRate: currentFaultRate,
+                tlbHitRate: currentHitRate, // Using hit rate as proxy for TLB hit rate in this simplified view
+                totalAccesses: totalAccesses,
+                pageFaults: misses,
+                tlbHits: hits,
+                pageFaultHistory: faultHistory,
+                tlbHitHistory: hitHistory
+            });
+
+            // Add Log for current step
+            if (currentStep < pageReferences.length) {
+                const page = pageReferences[currentStep];
+                const status = visibleStates[currentStep]?.hit ? 'HIT' : 'MISS';
+                addLog(`Access Page ${page} -> ${status} (${algorithm})`);
+            }
+        }
+    }, [isExecuted, currentStep, allFrameStates, algorithm, pageReferences, setStats, addLog]);
+
+    // Current PFF Calculation (Restored)
     const recentStates = visibleStates.slice(Math.max(0, visibleStates.length - workingSetWindow));
     const currentPFF = recentStates.filter(s => !s.hit).length / Math.min(workingSetWindow, recentStates.length);
 

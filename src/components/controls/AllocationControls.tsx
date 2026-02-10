@@ -204,29 +204,28 @@ export default function AllocationControls() {
                 </div>
             </TerminalWindow>
 
+
             {/* Deallocation List */}
-            <TerminalWindow title="ACTIVE BLOCK TABLE" className="flex-1" status="active" hideControls>
-                <div className="flex flex-col h-full overflow-hidden">
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
-                        {activeProcesses.length === 0 ? (
-                            <div className="text-gray-600 text-[10px] italic text-center mt-4">No Active Processes</div>
-                        ) : (
-                            activeProcesses.map(block => (
-                                <div key={block.id} className="flex items-center justify-between bg-gray-900/50 p-2 rounded hover:bg-gray-800 border border-gray-800 hover:border-cyan-900 transition-colors group">
-                                    <div className="text-xs">
-                                        <div className="font-bold text-cyan-400">PID {block.pid}</div>
-                                        <div className="text-[10px] text-gray-500">Size: {block.size}KB | Start: {block.start}</div>
-                                    </div>
-                                    <button
-                                        onClick={() => deallocate(block.pid!)}
-                                        className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-900/30 rounded transition-opacity"
-                                    >
-                                        <Trash2 size={12} />
-                                    </button>
+            <TerminalWindow title="ACTIVE BLOCK TABLE" className="h-[300px]" status="active" hideControls>
+                <div className="absolute inset-0 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                    {activeProcesses.length === 0 ? (
+                        <div className="text-gray-600 text-[10px] italic text-center mt-4">No Active Processes</div>
+                    ) : (
+                        activeProcesses.map(block => (
+                            <div key={block.id} className="flex items-center justify-between bg-gray-900/50 p-2 rounded hover:bg-gray-800 border border-gray-800 hover:border-cyan-900 transition-colors group">
+                                <div className="text-xs">
+                                    <div className="font-bold text-cyan-400">PID {block.pid}</div>
+                                    <div className="text-[10px] text-gray-500">Size: {block.size}KB | Start: {block.start}</div>
                                 </div>
-                            ))
-                        )}
-                    </div>
+                                <button
+                                    onClick={() => deallocate(block.pid!)}
+                                    className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-900/30 rounded transition-opacity"
+                                >
+                                    <Trash2 size={12} />
+                                </button>
+                            </div>
+                        ))
+                    )}
                 </div>
             </TerminalWindow>
         </div>

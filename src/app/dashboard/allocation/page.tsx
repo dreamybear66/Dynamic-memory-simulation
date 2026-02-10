@@ -61,21 +61,21 @@ export default function VariablePartitioningPage() {
                 {/* Right Visualization Panel */}
                 <div className="col-span-8 flex flex-col gap-4">
                     {/* Memory Tape */}
-                    <TerminalWindow title="PHYSICAL MEMORY TAPE" className="min-h-[400px]" status="scanning" hideControls>
+                    <TerminalWindow title="PHYSICAL MEMORY TAPE" className="h-[450px]" status="scanning" hideControls>
                         <MemoryTape />
                     </TerminalWindow>
+
+                    {/* Fragmentation Chart - Next to Active Block Table */}
+                    <div className="min-h-[260px]">
+                        <FragmentationChart />
+                    </div>
                 </div>
             </div>
 
-            {/* Statistics Panel - Full width, aligned with frag chart */}
+            {/* Memory Statistics - Full width at bottom */}
             <TerminalWindow title="MEMORY STATISTICS" status="active" hideControls>
                 <StatisticsPanel />
             </TerminalWindow>
-
-            {/* Fragmentation Chart - Full width below */}
-            <div className="w-full min-h-[260px]">
-                <FragmentationChart />
-            </div>
         </div>
     );
 }

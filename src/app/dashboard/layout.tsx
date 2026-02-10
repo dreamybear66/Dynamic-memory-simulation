@@ -19,12 +19,8 @@ export default function DashboardLayout({
             {/* Global HUD Header (Status Bar described in prompt) */}
             <div className="fixed top-0 left-64 right-0 h-12 bg-black/50 backdrop-blur-sm border-b border-cyan-900/50 z-30 flex items-center justify-between px-6">
                 <div className="flex gap-6 text-[10px] font-mono text-cyan-600">
-                    <span>SYSTEM UPTIME: <span className="text-white">00:42:15</span></span>
-                    <span>KERNEL: <span className="text-white">5.0-ALPHA</span></span>
-                </div>
-                <div className="flex gap-4 text-[10px] font-mono">
-                    <span className="text-gray-500">GLOBAL MEMORY LOAD</span>
-                    <span className="text-cyan-400 hover:text-cyan-300 cursor-help transition-colors">NORMAL</span>
+                    {/* Elements removed as per request */}
+                    <span className="font-bold tracking-widest text-cyan-500">DASHBOARD_V1</span>
                 </div>
             </div>
 

@@ -161,7 +161,7 @@ export default function FragmentationChart() {
                                 style={{ filter: 'drop-shadow(0 0 4px rgba(34, 211, 238, 0.6))' }}
                             />
                             {/* Tooltip on hover */}
-                            <title>{point.value} KB at Step {point.step}</title>
+                            <title suppressHydrationWarning>{point.value} KB at Step {point.step}</title>
                         </g>
                     ))}
                 </svg>

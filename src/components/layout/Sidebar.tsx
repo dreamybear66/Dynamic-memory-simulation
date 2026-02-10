@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MemoryStick, Layers, BookOpen } from 'lucide-react';
+import { MemoryStick, Layers, BookOpen, FileText } from 'lucide-react';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 
 const NAV_ITEMS = [
-    { name: 'PAGING SIM', path: '/dashboard/paging', icon: Layers },
     { name: 'ALLOCATION', path: '/dashboard/allocation', icon: Layers },
+    { name: 'PAGING SIM', path: '/dashboard/paging', icon: Layers },
+    { name: 'REPORTS', path: '/dashboard/reports', icon: FileText },
     { name: 'DOCS', path: '/dashboard/docs', icon: BookOpen },
 ];
 
@@ -24,11 +25,8 @@ export default function Sidebar() {
             {/* Brand */}
             <div className="p-6 border-b border-cyan-900/50">
                 <h1 className="text-xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
-                    CYBER_OS The_Sim
+                    AllocX_TheSim
                 </h1>
-                <div className="text-[10px] text-gray-500 font-mono mt-1">
-                    KERNEL v5.0-ALPHA
-                </div>
             </div>
 
             {/* Nav */}
@@ -69,11 +67,8 @@ export default function Sidebar() {
             {/* Footer Status */}
             <div className="p-4 border-t border-cyan-900/50 text-[10px] text-gray-600 font-mono">
                 <div className="flex justify-between items-center mb-1">
-                    <span>SYS_UPTIME</span>
-                    <span className="text-green-500">99.9%</span>
-                </div>
-                <div className="w-full bg-gray-900 h-1 rounded-full overflow-hidden">
-                    <div className="w-[40%] h-full bg-green-500 animate-pulse" />
+                    <span>AllocX Simulator</span>
+                    <span className="text-cyan-500">ONLINE</span>
                 </div>
             </div>
         </motion.aside>
