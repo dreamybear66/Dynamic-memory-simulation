@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import { motion } from 'framer-motion';
 
 const NAV_ITEMS = [
-    { name: 'PAGING SIM', path: '/dashboard/memory', icon: MemoryStick },
+    { name: 'PAGING SIM', path: '/dashboard/paging', icon: Layers },
     { name: 'ALLOCATION', path: '/dashboard/allocation', icon: Layers },
     { name: 'DOCS', path: '/dashboard/docs', icon: BookOpen },
 ];
